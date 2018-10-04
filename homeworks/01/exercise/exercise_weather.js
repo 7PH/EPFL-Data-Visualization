@@ -135,9 +135,64 @@ class ForecastOnline extends Forecast {
     }
 }
 
-whenDocumentLoaded(() => {
-    new ForecastOnline(document.getElementById('weather-part3')).reload();
+whenDocumentLoaded(async () => {
+    await new ForecastOnline(document.getElementById('weather-part3')).reload();
 });
 
 // Part 4 - interactive
 
+const QUERY = `http://query.yahooapis.com/v1/public/yql?format=json&q=select * from weather.forecast where woeid in (select woeid from geo.places(1) where text="{{{city}}}") and u="c"`;
+
+class ForecastOnlineCity extends Forecast {
+
+    /**
+     * @constructor
+     * @param {HTMLElement} container
+     */
+    constructor(container) {
+        super(container);
+
+        this.city = '';
+    }
+
+    /**
+     *
+     * @param {string} city
+     */
+    setCity(city) {
+        this.city = city;
+    }
+
+    /**
+     * @override
+     */
+    async reload() {
+        const data = await (await fetch(QUERY.replace('{{{city}}}', this.city))).json();
+        try {
+            this.temperatures = yahooToTemperatures(data);
+        } catch (e) {
+            this.temperatures = [];
+        }
+        this.show();
+    }
+
+    /**
+     * @override
+     */
+    show() {
+        super.show();
+
+        this.container.innerHTML = `${this.city}: ${this.container.innerHTML}`;
+    }
+}
+
+const forecastOnlineCity = new ForecastOnlineCity(document.getElementById('weather-city'));
+
+whenDocumentLoaded(() => {
+    document.getElementById('btn-city')
+        .addEventListener('click', async function() {
+            const city = document.getElementById('query-city').value;
+            forecastOnlineCity.setCity(city);
+            await forecastOnlineCity.reload();
+        });
+});
