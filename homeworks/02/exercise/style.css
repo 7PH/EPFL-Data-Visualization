@@ -55,5 +55,6 @@ The various units of measurement available in CSS:
 */
 
 svg {
-	margin: 1rem;
+	/*margin: 1rem; breaks everything on chromium / gnome / debian unstable */
+
 }
