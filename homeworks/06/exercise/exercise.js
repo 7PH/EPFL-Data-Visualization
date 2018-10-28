@@ -49,17 +49,13 @@ class ImageHistogram {
 
             const paths = this.plotArea
                 .selectAll('path')
-                .data(this.hist, d => Math.random());
+                .data(this.hist, d => d);
 
             paths
                 .enter()
                 .append('path')
-                .attr('class', (d, i) => colorScale(i))
-                .merge(paths)
-                .attr('d', d => {
-                    console.log("Regen", d);
-                    return lineGenerator(d);
-                });
+                    .attr('class', (d, i) => colorScale(i))
+                    .attr('d', d => lineGenerator(d));
 
             paths.exit()
                 .remove();
