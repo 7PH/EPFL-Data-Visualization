@@ -1,0 +1,57 @@
+#chart-container {
+    position: fixed;
+    left: 0px;
+    right: 0px;
+    top: 0px;
+    bottom: 0px;
+}
+
+text.country-title {
+	font-size: 20px;
+}
+
+g.context g.brush rect.background {
+	fill: #808080;
+}
+
+g.context g.axis path {
+	stroke-opacity: 0;
+}
+
+g.context g.axis line {
+	stroke-opacity: .1;
+}
+
+g.australia path.chart {
+	fill:  #dddddd;
+}
+
+g.chile path.chart {
+	fill: #6f6a6a;
+}
+
+g.china path.chart {
+	fill:  #ffc707;
+}
+
+g.switzerland path.chart {
+	fill: #fd4a2b;
+}
+
+g.usa path.chart {
+	fill: #00c992;
+}
+
+.axis path, .axis line {
+	fill: none;
+	stroke: #aaa;
+	shape-rendering: crispEdges;
+}
+
+.brush .extent {
+	fill-opacity: .125;
+}
+
+body {
+    font: 13px "Arial", Arial;
+}
