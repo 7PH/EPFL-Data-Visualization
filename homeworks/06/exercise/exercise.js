@@ -36,7 +36,7 @@ class ImageHistogram {
 
 		// Scales
         const scaleX = d3.scaleLinear().domain([0, 255]).range([0, svgViewbox.width]);
-        const scaleY = d3.scaleLinear().domain([0, 10000]).range([svgViewbox.height, 0]);
+        const scaleY = d3.scaleLinear().domain([0, Infinity]).range([svgViewbox.height, 0]);
         const colorScale = d3.scaleOrdinal().domain([0, 1, 2]).range(['red', 'green', 'blue']);
 
 		// Curve generator
@@ -49,42 +49,50 @@ class ImageHistogram {
 
             const paths = this.plotArea
                 .selectAll('path')
-                .data(this.hist, d => d);
+                .data(this.hist, (d, i) => i);
 
             paths
                 .enter()
                 .append('path')
                     .attr('class', (d, i) => colorScale(i))
+                    .attr('d', d => lineGenerator(d))
+                .merge(paths)
+                    .transition()
                     .attr('d', d => lineGenerator(d));
 
-            paths.exit()
+            paths
+                .exit()
                 .remove();
         };
 
+        render();
+
 		// Brush
-        const brush =
-            d3.brush().on("brush", () => {
-                if (d3.event.selection === null)
-                    return;
-                console.log(d3.event.selection);
-                const [[xMin, yMin], [xMax, yMax]] = d3.event.selection;
-                const width = xMax - xMin;
-                const height = yMax - yMin;
-                this.hist = plotObject.getImageHistogramOfArea(xMin, yMin, width, height);
-                this.hist = this.hist.map(d => {
-                    d[0] = 0;
-                    d[d.length - 1] = 0;
-                    return d;
-                });
-                render();
+        const handler = () => {
+
+            const [[xMin, yMin], [xMax, yMax]] = d3.event.selection;
+            const width = xMax - xMin;
+            const height = yMax - yMin;
+            this.hist = plotObject.getImageHistogramOfArea(xMin, yMin, width, height);
+            this.hist = this.hist.map(d => {
+                d[0] = 0;
+                d[d.length - 1] = 0;
+                return d;
             });
+
+            // update y scale
+            const max = Math.max(...this.hist[0], ...this.hist[1], ...this.hist[2]);
+            scaleY.domain([0, max]);
+
+            render();
+        };
 
 
 		// Brush visual representation
         this.svg
             .append("g")
             .attr("class", "brush")
-            .call(brush);
+            .call(d3.brush().on("brush", () => handler()));
 	}
 
     initImage() {
